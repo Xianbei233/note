@@ -105,8 +105,6 @@ React通过Hooks的调用顺序来确定调用中state对应的useState，React�
 
 #### useContext()
 
-
-
 #### 自定义Hook
 
 自定义Hook命名开头统一使用`use`，参数可自定
@@ -206,9 +204,9 @@ action通过dispatch(action)触发reducer触发更新
 
 ### Connect()
 
-connect((states)=>{react states objext})(link component)
+connect((states)=>{react states-props map})(link component)
 
-connect函数编写柯里化，第一次传参state返回一个可传参的函数，第二次传参需要连接的组件，对两次传参进行同时处理，构成一个含有state的组件
+connect函数编写柯里化，第一次传参映射函数返回一个可继续传参的函数式组件，第二次传参需要连接的组件，将需要连接的组件包含在函数式组件中，构成一个含有state的组件
 
 #### 柯里化
 
@@ -224,4 +222,56 @@ add(3)(4); //7
 #### @connect()
 
 语法糖，对该文件内的所有组件进行链接
+
+### reducer()
+
+与redux中的reducer相同功能，不过api用法不同，action不再作为参数传入reducer中，reducer只接受纯state
+
+### dispatch()
+
+redux中Store.dispatch的简化，被connect的组件会自动在props中拥有该方法
+
+与redux中的用法相同，在model外调用时type为‘model-namespace/reducer’，payload为调用时需要传递的参数
+
+### Effect
+
+为Action处理迭代器，处理异步action
+
+```js
+effects: {
+    *query({ payload }, { select, call, put }) {
+      yield put({ type: 'showLoading' });
+      const { data } = yield call(query);
+      if (data) {
+        yield put({
+          type: 'querySuccess',
+          payload: {
+            list: data.data,
+            total: data.page.total,
+            current: data.page.current
+          }
+        });
+      }
+    },
+  },
+```
+
+其中 call 和 put 是 dva 提供的方便操作 effects 的函数，来自redux-saga，简单理解 call 是调用执行一个函数，而 put 则是相当于 dispatch 执行一个 action，而 select 则可以用来访问其它 model
+
+#### call(fn, ...args)
+
+操作同对象的call方法
+
+#### put(action)
+
+操作同dispatch
+
+#### select(selector,...args)
+
+创建Effect，用来让中间件在当前Store的state上调用指定的选择器，先返回selector(getState(), ...args)的结果（指全局state）在函数内部
+
+selector：Function是一个(state,...args) =>{数据操作} 的函数，调用全局State返回指定的state的当前状态
+
+args：Array，传递进selector函数中
+
 
