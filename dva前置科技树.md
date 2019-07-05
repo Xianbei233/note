@@ -192,6 +192,8 @@ action通过dispatch(action)触发reducer触发更新
 
 它是一个对象，必须有一个名为`type`的字符串属性来表示将要执行的动作
 
+####
+
 ## dva及其API详解
 
 ### 核心概念
