@@ -250,7 +250,8 @@ store.dispatch({
 
 connect((states)=>{react states-props map})(link component)
 
-connect函数编写柯里化，第一次传参映射函数返回一个可继续传参的函数式组件，第二次传参需要连接的组件，将需要连接的组件包含在函数式组件中，构成一个含有state的组件
+connect函数编写柯里化，connect首参映射函数返回的state=》prop映射结果将作为传入link component的props一部分
+
 
 #### 柯里化
 
@@ -269,7 +270,7 @@ add(3)(4); //7
 
 ### reducer()
 
-与redux中的reducer相同功能，不过api用法不同，action不再作为参数传入reducer中，reducer只接受纯state
+与redux中的reducer相同功能，不过api用法不同，action不再作为参数传入reducer中，reducer只接受纯state,他的return会更新所在model的state.
 
 ### dispatch()
 
