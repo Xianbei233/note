@@ -192,7 +192,49 @@ action通过dispatch(action)触发reducer触发更新
 
 它是一个对象，必须有一个名为`type`的字符串属性来表示将要执行的动作
 
-####
+### middleWare 中间件
+
+Redux 的中间件提供的是位于 action 被发起之后，到达 reducer 之前的扩展点，换而言之，原本 view -> action -> reducer -> store 的数据流加上中间件后变成了 view -> action -> middleware -> reducer -> store ，在这一环节我们可以做一些 “副作用” 的操作，如 异步请求、打印日志等。
+
+```js
+import { createStore, applyMiddleware } from 'redux'
+/** 定义初始 state**/
+const initState = {
+  score : 0.5
+}
+/** 定义 reducer**/
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'CHANGE_SCORE':
+      return { ...state, score:action.score }
+    default:
+      break
+  }
+}
+
+/** 定义中间件 **/
+const logger = ({ getState, dispatch }) => next => action => {
+  console.log('【logger】即将执行:', action)
+
+    // 调用 middleware 链中下一个 middleware 的 dispatch。
+  let returnValue = next(action)
+
+  console.log('【logger】执行完成后 state:', getState())
+  return returnValue
+}
+
+/** 创建 store**/
+let store = createStore(reducer, initState, applyMiddleware(logger))
+
+/** 现在尝试发送一个 action**/
+store.dispatch({
+  type: 'CHANGE_SCORE',
+  score: 0.8
+})
+/** 打印:**/
+// 【logger】即将执行: { type: 'CHANGE_SCORE', score: 0.8 }
+// 【logger】执行完成后 state: { score: 0.8 }
+```
 
 ## dva及其API详解
 
@@ -276,4 +318,23 @@ selector：Function是一个(state,...args) =>{数据操作} 的函数，调用�
 
 args：Array，传递进selector函数中
 
+### Subscription 订阅
 
+用于订阅一个数据源，然后根据条件 dispatch 需要的 action。数据源可以是当前的时间、服务器的 websocket 连接、keyboard 输入、geolocation 变化、history 路由变化等等。
+
+```js
+import key from 'keymaster';
+...
+app.model({
+  namespace: 'count',
+  subscriptions: {
+    keyEvent({dispatch}) {
+      key('⌘+up, ctrl+up', () => { dispatch({type:'add'}) });
+    },
+  }
+});
+```
+
+### react数据流处理至dva图解
+
+(传送门)[https://dvajs.com/guide/fig-show.html]
